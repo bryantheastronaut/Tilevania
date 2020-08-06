@@ -6,25 +6,19 @@ using UnityEngine.InputSystem;
 
 public class MovementController : MonoBehaviour {
     [SerializeField] float runSpeed = 5f;
+    [SerializeField] InputActionAsset asset;
 
+    private InputAction inputAction;
     private Rigidbody2D rb;
 
-    private Vector2 wasdInput;
-    private float xMovement;
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
-    }
-
-    // OnMovement needs to be called `On` whatever the InputAsset Name is.
-    private void OnMovement(InputValue value) {
-        wasdInput = value.Get<Vector2>();
-        xMovement = wasdInput.x * runSpeed;
+        inputAction = asset.FindAction("Movement");
     }
 
     private void FixedUpdate() {
-        if (xMovement != 0) {
-            rb.velocity = new Vector2(xMovement, rb.velocity.y);
-        }
+        var x = inputAction.ReadValue<Vector2>().x;
+        rb.velocity = new Vector2(x * runSpeed, rb.velocity.y);
     }
 }
