@@ -7,34 +7,43 @@ using UnityEngine.InputSystem;
 public class MovementController : MonoBehaviour {
     // Config
     [SerializeField] float runSpeed = 5f;
+    [SerializeField] float jumpPower = 15f;
 
     // Cached refs
     [SerializeField] InputActionAsset asset;
-    private InputAction inputAction;
     private Rigidbody2D rb;
     private Animator anim;
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
-        inputAction = asset.FindAction("Movement");
-
         anim = GetComponent<Animator>();
     }
 
     private void FixedUpdate() {
-        var x = inputAction.ReadValue<Vector2>().x;
-        rb.velocity = new Vector2(x * runSpeed, rb.velocity.y);
         CheckIsRunning();
+
+        bool didTriggerJump = asset.FindAction("Jump").triggered;
+        if (didTriggerJump) { Jump(); }
+    }
+
+    private void Jump() {
+        Vector2 jumpVelocityToAdd = new Vector2(0f, jumpPower);
+        rb.velocity += jumpVelocityToAdd;
     }
 
     private void CheckIsRunning() {
-        bool isMovingOnX = Mathf.Abs(rb.velocity.x) > Mathf.Epsilon;
-        anim.SetBool("isRunning", isMovingOnX);
-        if (isMovingOnX) { FlipSprite(); }
+        var x = asset.FindAction("Movement").ReadValue<Vector2>().x * runSpeed;
+        rb.velocity = new Vector2(x, rb.velocity.y);
+        FlipSprite();        
     }
 
     private void FlipSprite() {
-        // if player is moving horizontally, we need to reverse current scaling of x axis
-        transform.localScale = new Vector2(Mathf.Sign(rb.velocity.x), 1f);
+        bool isMovingOnX = Mathf.Abs(rb.velocity.x) > Mathf.Epsilon;
+        anim.SetBool("isRunning", isMovingOnX);
+
+        if (isMovingOnX) {
+            // if player is moving horizontally, we need to reverse current scaling of x axis
+            transform.localScale = new Vector2(Mathf.Sign(rb.velocity.x), 1f);
+        }
     }
 }
