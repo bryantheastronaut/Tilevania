@@ -12,15 +12,20 @@ public class MovementController : MonoBehaviour {
 
     // Cached refs
     [SerializeField] InputActionAsset asset;
+
     private Rigidbody2D rb;
     private Animator anim;
-    private Collider2D col;
+    private float gravityScaleAtStart;
+    private CapsuleCollider2D bodyCollider;
+    private BoxCollider2D feetCollider;
 
 
     private void Awake() {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        col = GetComponent<Collider2D>();
+        bodyCollider = GetComponent<CapsuleCollider2D>();
+        feetCollider = GetComponent<BoxCollider2D>();
+        gravityScaleAtStart = rb.gravityScale;
     }
 
     private void FixedUpdate() {
@@ -32,7 +37,7 @@ public class MovementController : MonoBehaviour {
 
     private void Jump() {
         bool didTriggerJump = asset.FindAction("Jump").triggered;
-        bool canJump = col.IsTouchingLayers(LayerMask.GetMask("Ground")) || col.IsTouchingLayers(LayerMask.GetMask("Climbable"));
+        bool canJump = feetCollider.IsTouchingLayers(LayerMask.GetMask("Ground")) || feetCollider.IsTouchingLayers(LayerMask.GetMask("Climbable"));
         if (!canJump || !didTriggerJump) { return; }
 
         Vector2 jumpVelocityToAdd = new Vector2(0f, jumpPower);
@@ -57,13 +62,11 @@ public class MovementController : MonoBehaviour {
 
     private void CanClimbLadder() {
 
-        if (!col.IsTouchingLayers(LayerMask.GetMask("Climbable"))) {
-            Debug.Log("Not climbable!");
+        if (!feetCollider.IsTouchingLayers(LayerMask.GetMask("Climbable"))) {
             anim.SetBool("isClimbing", false);
-            rb.gravityScale = 1f;
+            rb.gravityScale = gravityScaleAtStart;
             return;
         }
-        Debug.Log("Climbable!");
 
         rb.gravityScale = 0f;
 
