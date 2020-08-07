@@ -170,7 +170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   runSpeed: 5
-  jumpPower: 5
+  jumpPower: 22.5
   asset: {fileID: -944628639613478452, guid: 7330166df93584699896a144232c5552, type: 3}
 --- !u!114 &2073167932
 MonoBehaviour:
