@@ -10,6 +10,9 @@ public class MovementController : MonoBehaviour {
     [SerializeField] float jumpPower = 22.5f;
     [SerializeField] float climbSpeed = 5f;
 
+    // State
+    private bool playerIsAlive;
+
     // Cached refs
     [SerializeField] InputActionAsset asset;
 
@@ -26,13 +29,16 @@ public class MovementController : MonoBehaviour {
         bodyCollider = GetComponent<CapsuleCollider2D>();
         feetCollider = GetComponent<BoxCollider2D>();
         gravityScaleAtStart = rb.gravityScale;
+
+        playerIsAlive = true;
     }
 
     private void FixedUpdate() {
-        CheckIsRunning();
-        CanClimbLadder();
-        Jump();
-        
+        if (!playerIsAlive) { return; }
+            CheckIsRunning();
+            CanClimbLadder();
+            Jump();
+            CheckDidDie();
     }
 
     private void Jump() {
@@ -75,5 +81,17 @@ public class MovementController : MonoBehaviour {
 
         anim.SetBool("isClimbing", isMovingOnY);
         rb.velocity = new Vector2(rb.velocity.x, isMovingOnY ? y : 0);
+    }
+
+    private void CheckDidDie() {
+        if (bodyCollider.IsTouchingLayers(LayerMask.GetMask("Hazard", "Enemy"))) {
+            playerIsAlive = false;
+            anim.SetTrigger("Die");
+            rb.AddForce(new Vector2(Random.Range(-1000f, 1000f), Random.Range(500f, 1750f)));
+        }
+    }
+
+    public bool CheckPlayerIsAlive() {
+        return playerIsAlive;
     }
 }
