@@ -21,6 +21,7 @@ public class MovementController : MonoBehaviour {
     private float gravityScaleAtStart;
     private CapsuleCollider2D bodyCollider;
     private BoxCollider2D feetCollider;
+    private GameSession gs;
 
 
     private void Awake() {
@@ -29,6 +30,7 @@ public class MovementController : MonoBehaviour {
         bodyCollider = GetComponent<CapsuleCollider2D>();
         feetCollider = GetComponent<BoxCollider2D>();
         gravityScaleAtStart = rb.gravityScale;
+        gs = FindObjectOfType<GameSession>();
 
         playerIsAlive = true;
     }
@@ -85,6 +87,7 @@ public class MovementController : MonoBehaviour {
 
     private void CheckDidDie() {
         if (bodyCollider.IsTouchingLayers(LayerMask.GetMask("Hazard", "Enemy"))) {
+            gs.ProcessPlayerDeath();
             playerIsAlive = false;
             anim.SetTrigger("Die");
             rb.AddForce(new Vector2(Random.Range(-1000f, 1000f), Random.Range(500f, 1750f)));
